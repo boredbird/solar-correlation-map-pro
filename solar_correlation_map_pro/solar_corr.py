@@ -7,6 +7,7 @@ import pandas as pd
 import math
 import matplotlib.pyplot as plt
 import sys
+import copy
 
 class star:
     def __init__(self,**kw):
@@ -92,16 +93,37 @@ def get_star_info(df_cor,sun):
     stars = []
 
     # 初始化stars
-    stars = [star(label_name=col_name) for col_name in df_data.columns]
+    stars = [star(label_name=col_name) for col_name in df_data.columns] # columns顺序
 
     # 获取太阳的idx
-    idx_sun = 'JEDI' == df_cor.columns
+    idx_sun = np.where('JEDI' == df_cor.columns)[0] # columns顺序
+    # 获取star的idx
+    idx_star = np.where('JEDI' != df_cor.columns)[0] # columns顺序
 
     # 先把相关系数从大到小排
+    np.abs(df_cor[sun][idx_star])
+    sort_args = np.argsort(-np.abs(df_cor[sun][idx_star]))
+    idx_star_sorted = idx_star[sort_args] # columns顺序
 
-    # sort_args = np.argsort(corr_dists)
-    # idx_int = idx_int[sort_args]
-    
+    idx_star_todo = copy.deepcopy(idx_star)
+    star = stars[idx_star_sorted[0]]
+
+    star.is_planet = np.abs(df_cor[sun][idx_star_sorted[0]]) > 0.5
+    star.correlation = df_cor[sun][idx_star_sorted[0]]
+
+    star.planet = None  # 该卫星的行星名字
+    star.moon = None  # 该行星的卫星名字
+    star.orbit = None  # 所处轨道
+    star.angle = None  # 与他的行星的夹角
+    star.axis_x = None  # 坐标x
+    star.axis_y = None  # 坐标y
+
+
+
+
+
+
+
 
     # 判断是行星还是卫星
     idx_planet = (df_cor[sun] > 0.8)&(np.logical_not(idx_sun))
